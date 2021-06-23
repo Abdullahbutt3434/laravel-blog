@@ -3,6 +3,7 @@
 namespace BinshopsBlog\Controllers;
 
 use App\Http\Controllers\Controller;
+use BinshopsBlog\Middleware\categoryMiddleware;
 use Illuminate\Http\Request;
 use BinshopsBlog\Events\CategoryAdded;
 use BinshopsBlog\Events\CategoryEdited;
@@ -28,8 +29,9 @@ class BinshopsCategoryAdminController extends Controller
      */
     public function __construct()
     {
-        $this->middleware(UserCanManageBlogPosts::class);
+
         $this->middleware(LoadLanguage::class);
+        $this->middleware(categoryMiddleware::class)->except('index');
 
     }
 

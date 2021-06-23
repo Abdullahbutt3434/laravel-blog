@@ -103,4 +103,5 @@ class BinshopsPost extends Model
         return $this->hasMany(BinshopsComment::class, 'post_id');
     }
 
+
 }

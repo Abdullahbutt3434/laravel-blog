@@ -59,7 +59,7 @@
         </div>
     </li>
 
-
+@if(\Illuminate\Support\Facades\Auth::user()->id == 1)
     <li class="list-group-item list-group-color  justify-content-between lh-condensed">
         <div>
             <h6 class="my-0"><a href="{{ route('binshopsblog.admin.categories.index') }}">Categories</a>
@@ -126,5 +126,6 @@
                 </div>
             </div>
         </li>
+    @endif
     @endif
 </ul>

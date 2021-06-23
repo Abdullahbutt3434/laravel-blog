@@ -7,12 +7,14 @@ use Auth;
 use BinshopsBlog\Captcha\CaptchaAbstract;
 use BinshopsBlog\Captcha\UsesCaptcha;
 use BinshopsBlog\Events\CommentAdded;
+use BinshopsBlog\Middleware\commentWriterMiddleware;
 use BinshopsBlog\Middleware\LoadLanguage;
 use BinshopsBlog\Middleware\UserCanManageBlogPosts;
 use BinshopsBlog\Models\BinshopsComment;
 use BinshopsBlog\Models\BinshopsPost;
 use BinshopsBlog\Models\BinshopsPostTranslation;
 use BinshopsBlog\Requests\AddNewCommentRequest;
+use Brian2694\Toastr\Toastr;
 
 /**
  * Class BinshopsCommentWriterController
@@ -25,7 +27,8 @@ class BinshopsCommentWriterController extends Controller
 
     public function __construct()
     {
-        $this->middleware(UserCanManageBlogPosts::class);
+//        $this->middleware(UserCanManageBlogPosts::class);
+        $this->middleware(commentWriterMiddleware::class);
         $this->middleware(LoadLanguage::class);
 
     }
@@ -63,6 +66,7 @@ class BinshopsCommentWriterController extends Controller
             'blog_post' => $post_translation,
             'new_comment' => $new_comment
         ]);
+
 
     }
 

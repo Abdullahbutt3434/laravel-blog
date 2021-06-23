@@ -23,6 +23,7 @@ use BinshopsBlog\Requests\CreateBinshopsPostToggleRequest;
 use BinshopsBlog\Requests\DeleteBinshopsBlogPostRequest;
 use BinshopsBlog\Requests\UpdateBinshopsBlogPostRequest;
 use BinshopsBlog\Traits\UploadFileTrait;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class BinshopsAdminController
@@ -54,12 +55,19 @@ class BinshopsAdminController extends Controller
      */
     public function index(Request $request)
     {
+
         $language_id = $request->get('language_id');
+        $userPost = BinshopsPost::orderBy("posted_at", "desc")->where('user_id',Auth::user()->id)->get();
         $posts = BinshopsPostTranslation::orderBy("post_id", "desc")->where('lang_id', $language_id)
             ->paginate(10);
+//        dd($userPost);
+//        dd($userPost[1]->postTranslations);
+//        foreach ($userPost as $post){
+//            dd($post->postTranslations[0]);
+//        }
 
         return view("binshopsblog_admin::index", [
-            'post_translations'=>$posts,
+            'post_translations'=>$userPost,
             'language_id' => $language_id
         ]);
     }

@@ -3,9 +3,11 @@
 namespace BinshopsBlog\Controllers;
 
 use App\Http\Controllers\Controller;
+use BinshopsBlog\Models\BinshopsComment;
 use Carbon\Carbon;
 use BinshopsBlog\Laravel\Fulltext\Search;
 use BinshopsBlog\Models\BinshopsCategoryTranslation;
+//use http\Client\Curl\User;
 use Illuminate\Http\Request;
 use BinshopsBlog\Captcha\UsesCaptcha;
 use BinshopsBlog\Middleware\DetectLanguage;
@@ -13,7 +15,7 @@ use BinshopsBlog\Models\BinshopsCategory;
 use BinshopsBlog\Models\BinshopsLanguage;
 use BinshopsBlog\Models\BinshopsPost;
 use BinshopsBlog\Models\BinshopsPostTranslation;
-
+use App\Models\User;
 /**
  * Class BinshopsReaderController
  * All of the main public facing methods for viewing blog content (index, single posts)
@@ -23,8 +25,10 @@ class BinshopsReaderController extends Controller
 {
     use UsesCaptcha;
 
+//    public $category_slug;
     public function __construct()
     {
+//        $this->category_slug = null;
         $this->middleware(DetectLanguage::class);
     }
 
@@ -35,10 +39,10 @@ class BinshopsReaderController extends Controller
      * @param null $category_slug
      * @return mixed
      */
-    public function index($locale, $category_slug = null, Request $request)
+    public function index($locale,  Request $request)
     {
+        $category_slug = "";
         // the published_at + is_published are handled by BinshopsBlogPublishedScope, and don't take effect if the logged in user can manageb log posts
-
         //todo
         $title = 'Blog Page'; // default title...
 
@@ -71,10 +75,15 @@ class BinshopsReaderController extends Controller
                 }])->paginate(config("binshopsblog.per_page", 10));
         }
 
+//        $postAuthor  = BinshopsPost::where('id',$posts)
+//        dd($posts);
+
         //load category hierarchy
         $rootList = BinshopsCategory::roots()->get();
         BinshopsCategory::loadSiblingsWithList($rootList);
+//        dd($posts[0]->post->author);
 
+//        dd($posts);
         return view("binshopsblog::index", [
             'lang_list' => BinshopsLanguage::all('locale','name'),
             'locale' => $request->get("locale"),
@@ -103,6 +112,7 @@ class BinshopsReaderController extends Controller
         $search_results = $search->run($query);
 
         \View::share("title", "Search results for " . e($query));
+
 
         $rootList = BinshopsCategory::roots()->get();
         BinshopsCategory::loadSiblingsWithList($rootList);
@@ -145,13 +155,24 @@ class BinshopsReaderController extends Controller
             ['lang_id', "=" , $request->get("lang_id")]
         ])->firstOrFail();
 
+        $post = BinshopsPost::where('id',$blog_post->id)->get()->first();
+        $user = User::where('id',$post->user_id)->get()->first();
+        $commentCount = BinshopsComment::where('post_id',$post->id)->count();
+        $category  = $post->categories;
+        $category  = BinshopsCategoryTranslation::where('category_id',$category[0]->id)->get()->first();
+//        if($category == null)
         if ($captcha = $this->getCaptchaObject()) {
             $captcha->runCaptchaBeforeShowingPosts($request, $blog_post);
         }
 
         return view("binshopsblog::single_post", [
             'post' => $blog_post,
-            // the default scope only selects approved comments, ordered by id
+            'date'=>$post->posted_at->format('j F Y'),
+            'user'=> $user,
+            'commentCount'=>$commentCount,
+            'category'=>$category->category_name,
+        'description'=>$user->doctor[0]->description,
+        // the default scope only selects approved comments, ordered by id
             'comments' => $blog_post->post->comments()
                 ->with("user")
                 ->get(),

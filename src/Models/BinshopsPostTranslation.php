@@ -49,7 +49,7 @@ class BinshopsPostTranslation extends Model implements SearchResultInterface
      *
      * @return array
      */
-    public function sluggable(): array
+    public function sluggable():array
     {
         return [
             'slug' => [

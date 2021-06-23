@@ -211,12 +211,6 @@
             </div>
         @endforelse
 
-        <div class='col-md-12 my-3 text-center'>
-
-            <em><a class="a-link-cart-color" target='_blank' href='{{route("binshopsblog.admin.categories.create_category")}}'><i class="fa fa-external-link" aria-hidden="true"></i>
-                    Add new categories
-                    here</a></em>
-        </div>
     </div>
 </div>
 
