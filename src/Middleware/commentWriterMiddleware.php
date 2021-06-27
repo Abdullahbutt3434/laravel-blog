@@ -22,15 +22,20 @@ class commentWriterMiddleware
 //        }
 
 //        $request->attributes->add(['lang_id' => $lang->id, 'locale' => $lang->locale]);
-        $user = User::where('email',$request->author_email)->get()->first();
+        $user = User::where('email',Auth::user()->email)->get()->first();
+//        dd(Auth::user()->email);
         if ($user == true ){
-            return redirect()->route('login');
+            if(Auth::guest()){
+                return redirect()->route('login');
+            }else{
+                return $next($request);
+
+            }
         }else{
             Session::flash('message', 'Sign Up to write Comment!');
             return  redirect()->route('register');
         }
 //
 
-        return $next($request);
     }
 }
